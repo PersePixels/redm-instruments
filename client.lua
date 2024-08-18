@@ -14,8 +14,6 @@ RegisterCommand('instrument', function(source, args, raw)
 	if args[1] == 'stop' then
 		StopInstrument()
 	else
-		-- ShowUi()
-
 		if args[1] then
 			StartInstrument(args[1])
 		end
