@@ -290,11 +290,6 @@ function StartInstrument(instrument)
 	local ped = PlayerPedId()
 
 
-	SendNUIMessage({
-		type = 'setInstrumentPreset',
-	})
-
-
 	if CurrentInstrument.attachTo and not AttachToInstrument(ped, CurrentInstrument.attachTo) then
 		CurrentInstrument = nil
 		return
