@@ -66,7 +66,7 @@ function SetupPlayInstrumentPrompts()
 	if CancelPrompt then PromptDelete(CancelPrompt) end 
 	local str = "Start"
 	StartPrompt = PromptRegisterBegin()
-	PromptSetControlAction(StartPrompt, 0xE30CD707)
+	PromptSetControlAction(StartPrompt, 0xD51B784F)
 	str = CreateVarString(10, 'LITERAL_STRING', str)
 	PromptSetText(StartPrompt, str)
 	PromptSetEnabled(StartPrompt, true)
@@ -78,7 +78,7 @@ function SetupPlayInstrumentPrompts()
 
 	str = "Stop"
 	StopPrompt = PromptRegisterBegin()
-	PromptSetControlAction(StopPrompt, 0xCEFD9220)
+	PromptSetControlAction(StopPrompt, 0xE3BF959B)
 	str = CreateVarString(10, 'LITERAL_STRING', str)
 	PromptSetText(StopPrompt, str)
 	PromptSetEnabled(StopPrompt, false)
@@ -90,7 +90,7 @@ function SetupPlayInstrumentPrompts()
 
 	str = "Cancel"
 	CancelPrompt = PromptRegisterBegin()
-	PromptSetControlAction(CancelPrompt, 0x05CA7C52)
+	PromptSetControlAction(CancelPrompt, 0x3B24C470)
 	str = CreateVarString(10, 'LITERAL_STRING', str)
 	PromptSetText(CancelPrompt, str)
 	PromptSetEnabled(CancelPrompt, true)
