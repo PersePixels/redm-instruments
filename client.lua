@@ -87,6 +87,9 @@ end
 
 function IsActivelyPlaying()
 	while true do
+		Wait(0)
+		SetupPlayInstrumentPrompts() -- does this need to be here in a loop ?
+		PromptSetActiveGroupThisFrame(PromptGroup)
 	if IsControlPressed(0, 0x3B24C470) then --[F key]
 		isPlaying = false
 	elseif not isPlaying then
