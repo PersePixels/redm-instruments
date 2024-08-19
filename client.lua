@@ -1,5 +1,5 @@
 local CurrentInstrument
-local isPLaying = false
+local isPlaying = false
 local PromptGroup = GetRandomIntInRange(0, 0xffffff)
 local StartPrompt
 local StopPrompt
