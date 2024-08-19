@@ -161,6 +161,26 @@ Config.Instruments = {
 			flag = 25
 		}
 	},
+	['bass'] = {
+        props = {
+            {
+                model = 'p_cs_contrabass01x',
+                bone = 'PH_R_HAND',
+                position = vector3(0.0, 0.0, 0.0),
+                rotation = vector3(0.0, 0.0, 0.0)
+            }
+        },
+        inactiveAnimation = {
+            dict = 'ai_gestures@instruments@double_bass@standing@female@normal',
+            name = 'dbass_base',
+            flag = 25
+        },
+        activeAnimation = {
+            dict = 'ai_gestures@instruments@double_bass@standing@female@normal',
+            name = 'dbass_low_slap_0_-1_01',
+            flag = 25
+        }
+    },
 	['fiddle'] = {
 		props = {
 			{
