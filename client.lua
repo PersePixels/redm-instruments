@@ -3,7 +3,7 @@ local isPlaying = false
 local PromptGroup = GetRandomIntInRange(0, 0xffffff)
 local StartPrompt
 local StopPrompt
-
+local CancelPrompt
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -13,9 +13,13 @@ RegisterCommand('instrument', function(source, args, raw)
 	if args[1] == 'stop' then
 		StopInstrument()
 	else
-
 		if args[1] then
-			StartInstrument(args[1])
+			if not CurrentInstrument then 
+				SetupPlayInstrumentPrompts()
+				StartInstrument(args[1])
+			else
+				EndInstrument()
+			end
 		end
 	end
 end)
@@ -26,12 +30,11 @@ CreateThread(function()
 	})
 
 	while true do
-		Wait(250)
+		Wait(500)
 
 		if CurrentInstrument then
 			local ped = PlayerPedId()
 			local anim = GetAnimation(ped, CurrentInstrument)
-
 
 			if not IsEntityPlayingAnim(ped, anim.dict, anim.name, anim.flag) then
 				PlayAnimation(ped, anim)
@@ -39,7 +42,7 @@ CreateThread(function()
 
 
 			if CurrentInstrument.props then
-				for _, prop in ipairs(CurrentInstrument.props) do
+				for i, prop in ipairs(CurrentInstrument.props) do
 					if not (prop.handle and DoesEntityExist(prop.handle)) then
 						CreateInstrumentObject(prop)
 						AttachInstrumentObject(ped, prop)
@@ -58,48 +61,86 @@ end)
 
 ---- Controls
 function SetupPlayInstrumentPrompts()
-	CreateThread(function()
-		local str = "Start"
-		StartPrompt = PromptRegisterBegin()
-		PromptSetControlAction(StartPrompt, 0xE30CD707)
-		str = CreateVarString(10, 'LITERAL_STRING', str)
-		PromptSetText(StartPrompt, str)
-		PromptSetEnabled(StartPrompt, true)
-		PromptSetVisible(StartPrompt, true)
-		PromptSetStandardMode(StartPrompt, true)
-		PromptSetGroup(StartPrompt, PromptGroup)
-		Citizen.InvokeNative(0xC5F428EE08FA7F2C, StartPrompt, true)
-		PromptRegisterEnd(StartPrompt)
+	if StartPrompt then PromptDelete(StartPrompt) end 
+	if StopPrompt then PromptDelete(StopPrompt) end 
+	if CancelPrompt then PromptDelete(CancelPrompt) end 
+	local str = "Start"
+	StartPrompt = PromptRegisterBegin()
+	PromptSetControlAction(StartPrompt, 0xE30CD707)
+	str = CreateVarString(10, 'LITERAL_STRING', str)
+	PromptSetText(StartPrompt, str)
+	PromptSetEnabled(StartPrompt, true)
+	PromptSetVisible(StartPrompt, true)
+	PromptSetStandardMode(StartPrompt, true)
+	PromptSetGroup(StartPrompt, PromptGroup)
+	Citizen.InvokeNative(0xC5F428EE08FA7F2C, StartPrompt, true)
+	PromptRegisterEnd(StartPrompt)
 
-		str = "Stop"
-		StopPrompt = PromptRegisterBegin()
-		PromptSetControlAction(StopPrompt, 0x3B24C470)
-		str = CreateVarString(10, 'LITERAL_STRING', str)
-		PromptSetText(StopPrompt, str)
-		PromptSetEnabled(StopPrompt, true)
-		PromptSetVisible(StopPrompt, true)
-		PromptSetStandardMode(StopPrompt, true)
-		PromptSetGroup(StopPrompt, PromptGroup)
-		Citizen.InvokeNative(0xC5F428EE08FA7F2C, StopPrompt, true)
-		PromptRegisterEnd(StopPrompt)
-	end)
+	str = "Stop"
+	StopPrompt = PromptRegisterBegin()
+	PromptSetControlAction(StopPrompt, 0xCEFD9220)
+	str = CreateVarString(10, 'LITERAL_STRING', str)
+	PromptSetText(StopPrompt, str)
+	PromptSetEnabled(StopPrompt, false)
+	PromptSetVisible(StopPrompt, true)
+	PromptSetStandardMode(StopPrompt, true)
+	PromptSetGroup(StopPrompt, PromptGroup)
+	Citizen.InvokeNative(0xC5F428EE08FA7F2C, StopPrompt, true)
+	PromptRegisterEnd(StopPrompt)
+
+	str = "Cancel"
+	CancelPrompt = PromptRegisterBegin()
+	PromptSetControlAction(CancelPrompt, 0x05CA7C52)
+	str = CreateVarString(10, 'LITERAL_STRING', str)
+	PromptSetText(CancelPrompt, str)
+	PromptSetEnabled(CancelPrompt, true)
+	PromptSetVisible(CancelPrompt, true)
+	PromptSetStandardMode(CancelPrompt, true)
+	PromptSetGroup(CancelPrompt, PromptGroup)
+	Citizen.InvokeNative(0xC5F428EE08FA7F2C, CancelPrompt, true)
+	PromptRegisterEnd(CancelPrompt)
 end
 
 
-function IsActivelyPlaying()
+Citizen.CreateThread(function()
     while true do
         Wait(0)
-        SetupPlayInstrumentPrompts() -- does this need to be here in a loop ?
-        PromptSetActiveGroupThisFrame(PromptGroup)
+		if CurrentInstrument then 
+			local label = CreateVarString(10, 'LITERAL_STRING', "Instrument")
+			PromptSetActiveGroupThisFrame(PromptGroup, label)
 
-        if IsControlPressed(0, 0x3B24C470) then --[F key]
-            isPlaying = false
-        end
+			if PromptHasStandardModeCompleted(StopPrompt) then --[E key]
+				isPlaying = false
+				PromptSetEnabled(StopPrompt, false)
+				PromptSetEnabled(StartPrompt, true)
+				Wait(1000)
+			end
 
-        if IsControlPressed(0, 0xE30CD707) then -- [R key] 
-            isPlaying = true
-        end
+			if PromptHasStandardModeCompleted(StartPrompt) then -- [R key] 
+				isPlaying = true
+				PromptSetEnabled(StartPrompt, false)
+				PromptSetEnabled(StopPrompt, true)
+				Wait(1000)
+			end
+			if PromptHasStandardModeCompleted(CancelPrompt) then -- [BACKSPACE key] 
+				isPlaying = false
+				EndInstrument()
+				Wait(1000)
+			end
+		else
+			Wait(800)
+		end
     end
+end)
+
+function EndInstrument()
+	if CurrentInstrument then 
+		for i,v in pairs(CurrentInstrument.props) do 
+			DeleteEntity(v.handle)
+		end
+		ClearPedTasks(PlayerPedId())
+		CurrentInstrument = false
+	end
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -108,7 +149,7 @@ function GetAnimation(ped, instrument)
 	local anim
 
 
-	if IsActivelyPlaying() then
+	if isPlaying then
 		anim = instrument.activeAnimation
 	else
 		anim = instrument.inactiveAnimation
@@ -327,3 +368,21 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+AddEventHandler('onResourceStop', function(resourceName)
+	if (GetCurrentResourceName() ~= resourceName) then
+	  return
+	end
+	if StartPrompt then PromptDelete(StartPrompt) end 
+	if StopPrompt then PromptDelete(StopPrompt) end 
+	if CancelPrompt then PromptDelete(CancelPrompt) end 
+	if CurrentInstrument then 
+		for i,v in pairs(CurrentInstrument.props) do 
+			DeleteEntity(v.handle)
+		end
+		ClearPedTasks(PlayerPedId())
+	end
+end)
