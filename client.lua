@@ -87,20 +87,21 @@ end
 
 
 function IsActivelyPlaying()
-	while true do
-	if IsControlPressed(0, 0x3B24C470) then --[F key]
-		isPlaying = false
-	elseif not isPlaying then
-		if IsControlPressed(0, 0xE30CD707) then -- [R key] 
-		isPlaying = true
-		while not true do
-			Wait(0)
-		end
-	end
+    while true do
+        Wait(0)
+        SetupPlayInstrumentPrompts() -- does this need to be here in a loop ?
+        PromptSetActiveGroupThisFrame(PromptGroup)
+
+        if IsControlPressed(0, 0x3B24C470) then --[F key]
+            isPlaying = false
+        end
+
+        if IsControlPressed(0, 0xE30CD707) then -- [R key] 
+            isPlaying = true
+        end
+    end
 end
-return isPlaying
-end
-end
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function GetAnimation(ped, instrument)
