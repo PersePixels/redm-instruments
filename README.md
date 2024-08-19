@@ -1,6 +1,9 @@
 # redm-instruments
 Simple script that lets you play instruments.
 
-It's an edit of [Kibook's script](https://github.com/kibook/redm-instruments) because MIDI functionality no longer works
+Use /instrument to start the script, and /instrument piano near a piano to play the animation
 
-The only issue I'm having right now is getting prompts to stay when active, so if anyone can help with that, that'd be appreciated!
+It's an edit of [Kibook's script](https://github.com/kibook/redm-instruments) because MIDI functionality no longer works in RedM
+
+There's no sound, so players can stream their own music while playing
+
