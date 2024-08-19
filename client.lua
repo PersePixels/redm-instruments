@@ -1,6 +1,5 @@
 local CurrentInstrument
-local isPlaying = false
-
+local isPLaying = false
 local PromptGroup = GetRandomIntInRange(0, 0xffffff)
 local StartPrompt
 local StopPrompt
@@ -14,6 +13,7 @@ RegisterCommand('instrument', function(source, args, raw)
 	if args[1] == 'stop' then
 		StopInstrument()
 	else
+
 		if args[1] then
 			StartInstrument(args[1])
 		end
@@ -87,8 +87,6 @@ end
 
 function IsActivelyPlaying()
 	while true do
-		SetupPlayInstrumentPrompts()
-		PromptSetActiveGroupThisFrame(PromptGroup)
 	if IsControlPressed(0, 0x3B24C470) then --[F key]
 		isPlaying = false
 	elseif not isPlaying then
@@ -273,7 +271,7 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 function StartInstrument(instrument)
 	if CurrentInstrument then
-		StopPlayingInstrument()
+		StopInstrument()
 	end
 
 
@@ -296,10 +294,6 @@ function StartInstrument(instrument)
 end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 function StopInstrument()
-	if not CurrentInstrument then
-		return
-	end
-
 
 	local instrument = CurrentInstrument
 	CurrentInstrument = nil
